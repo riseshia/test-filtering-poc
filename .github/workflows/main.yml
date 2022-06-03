@@ -1,0 +1,27 @@
+name: CI
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Test
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        bundler-cache: true
+    - run: bin/setup
+    - run: bundle exec rspec
+
+  lint:
+    runs-on: ubuntu-latest
+    name: Rubocop
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        bundler-cache: true
+    - run: bundle exec rubocop
