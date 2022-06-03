@@ -6,6 +6,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     name: Test
+    env:
+      RAILS_ENV: test
     steps:
     - uses: actions/checkout@v2
     - name: Set up Ruby
