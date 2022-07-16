@@ -1,0 +1,42 @@
+name: Test based on file diff
+
+on: [pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Test
+    env:
+      RAILS_ENV: test
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        bundler-cache: true
+    - name: Fetch File associated Tests map
+      uses: actions/cache@v3
+      with:
+        path: file-to-associated-tests-map.json
+        key: ftatm-${{ github.sha }}
+        restore-keys: |
+          ftatm-
+    - name: Set up Rails
+      run: |
+        bin/setup
+        bin/rails tailwindcss:build
+    - if: ${{ steps.cache-npm.outputs.cache-hit == 'true' }}
+      name: Test base on file diff
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        REPOSITORY: ${{ github.repository }}
+      run: |
+        base_sha=$(cat file-to-associated-tests-map.json | jq -r .revision)
+        pr_sha=${{ github.sha }}
+        bundle exec bin/generate-diff-files "${REPOSITORY}" "${base_sha}" "${pr_sha}" > diff_files.json
+
+        bundle exec rspec $(bin/calculate-target-test --diff-file=diff_files.json --map-file=file-to-associated-tests-map.json)
+    - if: ${{ steps.cache-npm.outputs.cache-hit == 'false' }}
+      name: Test
+      run: |
+        bundle exec rspec
