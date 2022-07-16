@@ -134,6 +134,9 @@ GEM
     nokogiri (1.13.7)
       mini_portile2 (~> 2.8.0)
       racc (~> 1.4)
+    parallel (1.22.1)
+    parallel_tests (3.11.1)
+      parallel
     propshaft (0.6.4)
       actionpack (>= 7.0.0)
       activesupport (>= 7.0.0)
@@ -241,6 +244,7 @@ DEPENDENCIES
   debug
   importmap-rails
   jbuilder
+  parallel_tests
   propshaft
   puma (~> 5.0)
   rails (~> 7.0.3)
