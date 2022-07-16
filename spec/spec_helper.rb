@@ -140,22 +140,10 @@ RSpec.configure do |config|
   end
 
   def format_path(path)
-    if path&.include?("/gems/")
-      "/" + path.split("/gems/").last
-    elsif path&.start_with?(project_path)
+    if path&.start_with?(project_path)
       path.sub(project_path + "/", "")
     else
       path
-    end
-  end
-
-  def pretty(row)
-    caller_info, callee_info, _count = row
-    caller_path = format_path(caller_info.first)
-    callee_path = format_path(callee_info.first)
-
-    if caller_path != callee_path
-      pp([caller_path, callee_path])
     end
   end
 
