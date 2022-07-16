@@ -1,17 +1,17 @@
 <div id="<%= dom_id comment %>">
   <p class="my-5">
     <strong class="block font-medium mb-1">Username:</strong>
-    <%= comment.username %>
+    <span><%= comment.username %></span>
   </p>
 
   <p class="my-5">
     <strong class="block font-medium mb-1">Post:</strong>
-    <%= comment.post_id %>
+    <span><%= comment.post_id %></span>
   </p>
 
   <p class="my-5">
     <strong class="block font-medium mb-1">Content:</strong>
-    <%= comment.content %>
+    <span><%= comment.content %></span>
   </p>
 
   <% if action_name != "show" %>
