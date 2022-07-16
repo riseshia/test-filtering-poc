@@ -4,13 +4,13 @@ require "json"
 require "optparse"
 require "set"
 
-# bin/calculate-target-test --diff-file=<path> --map-file=<path>
-options = { diff_file_path: nil, map_file_path: nil, delimiter: "," }
+# bin/calculate-target-test --diff-file=<path> --map-file=<path> --delimiter=,
+options = { diff_file_path: nil, map_file_path: nil, delimiter: " " }
 
 opt = OptionParser.new
 opt.on("--diff-file=<path>") {|v| options[:diff_file_path] = v }
 opt.on("--map-file=<path>") {|v| options[:map_file_path] = v }
-opt.on("--output-delimiter=<delimter>") {|v| options[:delimiter] = v }
+opt.on("--output-delimiter=<val>", "Specify delimiter when output target tests. default: whitespace.") {|v| options[:delimiter] = v }
 opt.parse!(ARGV)
 
 if options.values.compact.size != 3
