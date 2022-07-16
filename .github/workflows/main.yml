@@ -14,8 +14,16 @@ jobs:
       uses: ruby/setup-ruby@v1
       with:
         bundler-cache: true
+    - name: Cache Files associated Tests map
+      uses: actions/cache@v3
+      with:
+        path: file-to-associated-tests-map.json
+        key: ${{ runner.os }}-main
     - name: Set up Rails
       run: |
         bin/setup
         bin/rails tailwindcss:build
-    - run: bin/rails test
+    - run: bundle exec rspec
+    - name: Save file-to-associated-test-map
+      run: |
+        mv {log/,}file-to-associated-tests-map.json

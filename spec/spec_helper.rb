@@ -39,7 +39,7 @@ module CalleeCallerMap
 
   def dump
     data = { revision: revision, map: cache.transform_values(&:to_a) }
-    File.write("log/callee_caller_map.json", JSON.dump(data))
+    File.write("log/file-to-associated-tests-map.json", JSON.dump(data))
   end
 
   def cache
