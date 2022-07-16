@@ -21,12 +21,14 @@ require "set"
 require "json"
 
 module CalleeCallerMap
-  module_function def add(caller, callee)
-    self.cache[callee] ||= Set.new
-    self.cache[callee].add(caller)
+  module_function
+
+  def add(caller, callee)
+    cache[callee] ||= Set.new
+    cache[callee].add(caller)
   end
 
-  module_function def revision
+  def revision
     revision_path = File.expand_path("../../REVISION", __FILE__)
     if File.exist?(revision_path)
       File.read(revision_path)
@@ -35,16 +37,22 @@ module CalleeCallerMap
     end
   end
 
-  module_function def dump
+  def dump
     data = { revision: revision, map: cache.transform_values(&:to_a) }
     File.write("log/callee_caller_map.json", JSON.dump(data))
   end
 
-  module_function def cache
+  def cache
     @cache ||= {}
   end
 end
 
+require "capybara/rspec"
+# require "capybara/apparition"
+# Capybara.register_driver :apparition do |app|
+#   Capybara::Apparition::Driver.new(app, { headless: true })
+# end
+# Capybara.javascript_driver = :apparition
 
 RSpec.configure do |config|
   # rspec-expectations config goes here. You can use an alternate
@@ -57,8 +65,7 @@ RSpec.configure do |config|
     #     be_bigger_than(2).and_smaller_than(4).description
     #     # => "be bigger than 2 and smaller than 4"
     # ...rather than:
-    #     # => "be bigger than 2"
-    expectations.include_chain_clauses_in_custom_matcher_descriptions = true
+    #     # => "be bigger than 2" expectations.include_chain_clauses_in_custom_matcher_descriptions = true
   end
 
   # rspec-mocks config goes here. You can use an alternate test double
@@ -174,6 +181,7 @@ RSpec.configure do |config|
 
     all_related_paths.each do |path|
       next if path.start_with?("spec/")
+
       unless path == target_test_file_path
         CalleeCallerMap.add(target_test_file_path, path)
       end
