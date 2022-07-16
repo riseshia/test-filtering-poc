@@ -15,6 +15,37 @@
 # it.
 #
 # See https://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
+
+require "calleree"
+require "set"
+require "json"
+
+module CalleeCallerMap
+  module_function def add(caller, callee)
+    self.cache[callee] ||= Set.new
+    self.cache[callee].add(caller)
+  end
+
+  module_function def revision
+    revision_path = File.expand_path("../../REVISION", __FILE__)
+    if File.exist?(revision_path)
+      File.read(revision_path)
+    else
+      "UNKNOWN"
+    end
+  end
+
+  module_function def dump
+    data = { revision: revision, map: cache.transform_values(&:to_a) }
+    File.write("log/callee_caller_map.json", JSON.dump(data))
+  end
+
+  module_function def cache
+    @cache ||= {}
+  end
+end
+
+
 RSpec.configure do |config|
   # rspec-expectations config goes here. You can use an alternate
   # assertion/expectation library such as wrong or the stdlib/minitest
@@ -89,4 +120,68 @@ RSpec.configure do |config|
   # test failures related to randomization by passing the same `--seed` value
   # as the one that triggered the failure.
   Kernel.srand config.seed
+
+  config.before(:suite) do
+    Calleree.start
+  end
+  # config.before(:each) do
+  #   puts "before each"
+  # end
+
+  def project_path
+    @project_path ||= File.expand_path("../../", __FILE__)
+  end
+
+  def format_path(path)
+    if path&.include?("/gems/")
+      "/" + path.split("/gems/").last
+    elsif path&.start_with?(project_path)
+      path.sub(project_path + "/", "")
+    else
+      path
+    end
+  end
+
+  def pretty(row)
+    caller_info, callee_info, _count = row
+    caller_path = format_path(caller_info.first)
+    callee_path = format_path(callee_info.first)
+
+    if caller_path != callee_path
+      pp([caller_path, callee_path])
+    end
+  end
+
+  config.after(:each) do
+    res = Calleree.result(clear: true)
+
+    caller_in_project = res.select do |(caller_info, _callee_info, _count)|
+      caller_path = caller_info.first
+      caller_path&.start_with?(project_path)
+    end.map do |(caller_info, _callee_info, _count)|
+      format_path(caller_info.first)
+    end
+
+    called_in_project = res.select do |(_caller_info, callee_info, _count)|
+      callee_path = callee_info.first
+      callee_path&.start_with?(project_path)
+    end.map do |(_caller_info, callee_info, _count)|
+      format_path(callee_info.first)
+    end
+    all_related_paths = (called_in_project + caller_in_project).uniq
+
+    target_test_file_path = format_path(self.class.declaration_locations.last[0])
+
+    all_related_paths.each do |path|
+      next if path.start_with?("spec/")
+      unless path == target_test_file_path
+        CalleeCallerMap.add(target_test_file_path, path)
+      end
+    end
+  end
+
+  config.after(:suite) do
+    Calleree.stop
+    CalleeCallerMap.dump
+  end
 end

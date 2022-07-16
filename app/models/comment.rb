@@ -6,4 +6,8 @@ class Comment < ApplicationRecord
   validates :username, presence: true
   validates :username, length: { maximum: 10 }
   validates :content, presence: true
+
+  def visible?
+    true
+  end
 end
