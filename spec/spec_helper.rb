@@ -31,7 +31,7 @@ module CalleeCallerMap
   def revision
     revision_path = File.expand_path("../../REVISION", __FILE__)
     if File.exist?(revision_path)
-      File.read(revision_path)
+      File.read(revision_path).strip
     else
       "UNKNOWN"
     end

@@ -26,6 +26,7 @@ jobs:
       run: |
         bin/setup
         bin/rails tailwindcss:build
+        git rev-parse HEAD > REVISION
     - run: bundle exec rspec
     - name: Save file-to-associated-test-map
       run: |
