@@ -34,8 +34,13 @@ jobs:
         base_sha=$(cat file-to-associated-tests-map.json | jq -r .revision)
         pr_sha=${{ github.sha }}
         bundle exec bin/generate-diff-files "${REPOSITORY}" "${base_sha}" "${pr_sha}" > diff_files.json
+        bin/calculate-target-test --diff-file=diff_files.json --map-file=file-to-associated-tests-map.json > test_targets
+        echo '## Executed spec files. :rocket:' >> $GITHUB_STEP_SUMMARY
+        for file in $(cat test_targets); do
+          echo "- ${file}" >> $GITHUB_STEP_SUMMARY
+        done
 
-        bundle exec rspec $(bin/calculate-target-test --diff-file=diff_files.json --map-file=file-to-associated-tests-map.json)
+        bundle exec rspec $(cat test_targets)
     - if: ${{ steps.cache-npm.outputs.cache-hit == 'false' }}
       name: Test
       run: |
