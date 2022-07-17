@@ -170,7 +170,7 @@ RSpec.configure do |config|
     all_related_paths.each do |path|
       next if path.start_with?("spec/")
 
-      unless path == target_test_file_path
+      if path != target_test_file_path && path.end_with?("_spec.rb")
         CalleeCallerMap.add(target_test_file_path, path)
       end
     end
