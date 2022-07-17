@@ -78,4 +78,9 @@ end
   target_tests << path
 end
 
-puts target_tests.to_a.join(options[:delimiter])
+node_number = ENV.fetch("NODE_NUMBER", "1").to_i
+node_index = ENV.fetch("NODE_INDEX", "0").to_i
+
+parial_list = target_tests.to_a.sort.each_slice(node_number).map { |slice| slice[node_index] }.compact
+
+puts partial_list.join(options[:delimiter])
