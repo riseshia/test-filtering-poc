@@ -64,23 +64,28 @@ diff.each do |diff_info|
   end
 end
 
-target_tests = Set.new
+target_tests_set = Set.new
 
 (modified_codes + deleted_codes).each do |path|
   list = map[path] || []
 
   list.each do |suspect_test_path|
-    target_tests << suspect_test_path
+    target_tests_set << suspect_test_path
   end
 end
 
 (added_tests + modified_tests).each do |path|
-  target_tests << path
+  target_tests_set << path
 end
+
+target_tests = target_tests_set.to_a
+
+# Test all if calculated result is empty
+target_tests = Dir["spec/**/*_spec.rb"] if target_tests.empty?
 
 node_number = ENV.fetch("NODE_NUMBER", "1").to_i
 node_index = ENV.fetch("NODE_INDEX", "0").to_i
 
-parial_list = target_tests.to_a.sort.each_slice(node_number).map { |slice| slice[node_index] }.compact
+parial_list = target_tests.sort.each_slice(node_number).map { |slice| slice[node_index] }.compact
 
 puts partial_list.join(options[:delimiter])
