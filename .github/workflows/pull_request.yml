@@ -19,9 +19,9 @@ jobs:
       uses: actions/cache@v3
       with:
         path: file-to-associated-tests-map.json
-        key: ftatm-${{ github.sha }}
+        key: map-v1-${{ github.sha }}
         restore-keys: |
-          ftatm-
+          map-v1-
     - name: Set up Rails
       run: |
         bin/setup
