@@ -33,7 +33,8 @@ module CalleeCallerMap
     if File.exist?(revision_path)
       File.read(revision_path).strip
     else
-      "UNKNOWN"
+      # "UNKNOWN"
+      raise "REVISION file is not found"
     end
   end
 
@@ -163,7 +164,7 @@ RSpec.configure do |config|
     end.map do |(_caller_info, callee_info, _count)|
       format_path(callee_info.first)
     end
-    all_related_paths = (called_in_project + caller_in_project).uniq
+    all_related_paths = (called_in_project + caller_in_project).uniq.reject { |path| path.start_with?("vendor/bundle/") }
 
     target_test_file_path = format_path(self.class.declaration_locations.last[0])
 
