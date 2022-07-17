@@ -3,6 +3,11 @@
 class PostsController < ApplicationController
   before_action :set_post, only: %i[show edit update destroy]
 
+  # Some diff on Posts controller.
+  # it trigger tests:
+  # - spec/requests/posts_spec.rb
+  # - spec/system/posts_spec.rb
+
   # GET /posts or /posts.json
   def index
     @posts = Post.all
