@@ -26,23 +26,22 @@ jobs:
       run: |
         bin/setup
         bin/rails tailwindcss:build
-    - if: ${{ steps.cache-map.outputs.cache-hit == 'true' }}
-      name: Test base on file diff
+    - name: Test base on file diff
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         REPOSITORY: ${{ github.repository }}
       run: |
-        base_sha=$(cat file-to-associated-tests-map.json | jq -r .revision)
-        pr_sha=${{ github.sha }}
-        bundle exec bin/generate-diff-files "${REPOSITORY}" "${base_sha}" "${pr_sha}" > diff_files.json
-        bin/calculate-target-test --diff-file=diff_files.json --map-file=file-to-associated-tests-map.json > test_targets
-        echo '## Executed spec files. :rocket:' >> $GITHUB_STEP_SUMMARY
-        for file in $(cat test_targets); do
-          echo "- ${file}" >> $GITHUB_STEP_SUMMARY
-        done
-
-        bundle exec rspec $(cat test_targets)
-    - if: ${{ steps.cache-map.outputs.cache-hit == 'false' }}
-      name: Test
-      run: |
-        bundle exec rspec
+        FILE=file-to-associated-tests-map.json
+        if [ -f "$FILE" ]; then
+          base_sha=$(cat file-to-associated-tests-map.json | jq -r .revision)
+          pr_sha=${{ github.sha }}
+          bundle exec bin/generate-diff-files "${REPOSITORY}" "${base_sha}" "${pr_sha}" > diff_files.json
+          bin/calculate-target-test --diff-file=diff_files.json --map-file=file-to-associated-tests-map.json > test_targets
+          echo '## Executed spec files :rocket:' >> $GITHUB_STEP_SUMMARY
+          for file in $(cat test_targets); do
+            echo "- ${file}" >> $GITHUB_STEP_SUMMARY
+          done
+        else
+          bundle exec rspec $(cat test_targets)
+          echo 'All spec files executed. :see_no_evil:' >> $GITHUB_STEP_SUMMARY
+        fi
