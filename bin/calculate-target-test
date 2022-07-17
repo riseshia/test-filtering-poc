@@ -78,7 +78,7 @@ end
   target_tests_set << path
 end
 
-target_tests = target_tests_set.to_a
+target_tests = target_tests_set.to_a - deleted_tests
 
 # Test all if calculated result is empty
 target_tests = Dir["spec/**/*_spec.rb"] if target_tests.empty?
