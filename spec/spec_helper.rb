@@ -139,6 +139,10 @@ RSpec.configure do |config|
     @project_path ||= File.expand_path("../../", __FILE__)
   end
 
+  def bundler_path
+    @bundler_path ||= Bundler.bundle_path.to_s
+  end
+
   def format_path(path)
     if path&.start_with?(project_path)
       path.sub(project_path + "/", "")
@@ -152,18 +156,18 @@ RSpec.configure do |config|
 
     caller_in_project = res.select do |(caller_info, _callee_info, _count)|
       caller_path = caller_info.first
-      caller_path&.start_with?(project_path)
+      caller_path&.start_with?(project_path) && !caller_path.start_with?(bundler_path)
     end.map do |(caller_info, _callee_info, _count)|
       format_path(caller_info.first)
     end
 
     called_in_project = res.select do |(_caller_info, callee_info, _count)|
       callee_path = callee_info.first
-      callee_path&.start_with?(project_path)
+      callee_path&.start_with?(project_path) && !callee_path.start_with?(bundler_path)
     end.map do |(_caller_info, callee_info, _count)|
       format_path(callee_info.first)
     end
-    all_related_paths = (called_in_project + caller_in_project).uniq.reject { |path| path.start_with?("vendor/bundle/") }
+    all_related_paths = (called_in_project + caller_in_project).uniq
 
     target_test_file_path = format_path(self.class.declaration_locations.last[0])
 
