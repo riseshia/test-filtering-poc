@@ -32,6 +32,7 @@ jobs:
         REPOSITORY: ${{ github.repository }}
       run: |
         FILE=file-to-associated-tests-map.json
+
         if [ -f "$FILE" ]; then
           base_sha=$(cat file-to-associated-tests-map.json | jq -r .revision)
           pr_sha=${{ github.sha }}
@@ -41,7 +42,8 @@ jobs:
           for file in $(cat test_targets); do
             echo "- ${file}" >> $GITHUB_STEP_SUMMARY
           done
-        else
           bundle exec rspec $(cat test_targets)
+        else
+          bundle exec rspec
           echo 'All spec files executed. :see_no_evil:' >> $GITHUB_STEP_SUMMARY
         fi

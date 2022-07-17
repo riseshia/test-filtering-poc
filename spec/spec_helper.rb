@@ -33,8 +33,7 @@ module CalleeCallerMap
     if File.exist?(revision_path)
       File.read(revision_path).strip
     else
-      # "UNKNOWN"
-      raise "REVISION file is not found"
+      "UNKNOWN"
     end
   end
 
