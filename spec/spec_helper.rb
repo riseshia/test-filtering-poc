@@ -151,19 +151,25 @@ RSpec.configure do |config|
     end
   end
 
+  def target_path?(path)
+    return false if path.nil?
+
+    path.start_with?(project_path) && !path.start_with?(bundler_path)
+  end
+
   config.after(:each) do
     res = Calleree.result(clear: true)
 
     caller_in_project = res.select do |(caller_info, _callee_info, _count)|
       caller_path = caller_info.first
-      caller_path&.start_with?(project_path) && !caller_path.start_with?(bundler_path)
+      target_path?(caller_path)
     end.map do |(caller_info, _callee_info, _count)|
       format_path(caller_info.first)
     end
 
     called_in_project = res.select do |(_caller_info, callee_info, _count)|
       callee_path = callee_info.first
-      callee_path&.start_with?(project_path) && !callee_path.start_with?(bundler_path)
+      target_path?(callee_path)
     end.map do |(_caller_info, callee_info, _count)|
       format_path(callee_info.first)
     end
@@ -174,7 +180,7 @@ RSpec.configure do |config|
     all_related_paths.each do |path|
       next if path.start_with?("spec/")
 
-      if path != target_test_file_path && path.end_with?("_spec.rb")
+      if path != target_test_file_path
         CalleeCallerMap.add(target_test_file_path, path)
       end
     end
