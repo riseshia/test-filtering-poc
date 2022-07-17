@@ -1,0 +1,54 @@
+name: Test based on file diff(parallel)
+
+on: [pull_request]
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        node_index: [0, 1]
+    runs-on: ubuntu-latest
+    name: Parallel Test(${{ matrix.node_index }}/2)
+    env:
+      RAILS_ENV: test
+      NODE_NUMBER: 2
+      NODE_INDEX: ${{ matrix.node_index }}
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        bundler-cache: true
+    - id: cache-map
+      name: Fetch File associated Tests map
+      uses: actions/cache@v3
+      with:
+        path: file-to-associated-tests-map.json
+        key: map-v1-${{ github.sha }}
+        restore-keys: |
+          map-v1-
+    - name: Set up Rails
+      run: |
+        bin/setup
+        bin/rails tailwindcss:build
+    - name: Test base on file diff
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        REPOSITORY: ${{ github.repository }}
+      run: |
+        FILE=file-to-associated-tests-map.json
+
+        if [ -f "$FILE" ]; then
+          base_sha=$(cat file-to-associated-tests-map.json | jq -r .revision)
+          pr_sha=${{ github.sha }}
+          bundle exec bin/generate-diff-files "${REPOSITORY}" "${base_sha}" "${pr_sha}" > diff_files.json
+          bin/calculate-target-test --diff-file=diff_files.json --map-file=file-to-associated-tests-map.json > test_targets
+          echo '## Executed spec files :rocket:' >> $GITHUB_STEP_SUMMARY
+          for file in $(cat test_targets); do
+            echo "- ${file}" >> $GITHUB_STEP_SUMMARY
+          done
+          bundle exec rspec $(cat test_targets)
+        else
+          bundle exec rspec
+          echo 'All spec files executed. :see_no_evil:' >> $GITHUB_STEP_SUMMARY
+        fi

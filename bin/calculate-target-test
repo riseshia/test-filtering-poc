@@ -86,6 +86,6 @@ target_tests = Dir["spec/**/*_spec.rb"] if target_tests.empty?
 node_number = ENV.fetch("NODE_NUMBER", "1").to_i
 node_index = ENV.fetch("NODE_INDEX", "0").to_i
 
-parial_list = target_tests.sort.each_slice(node_number).map { |slice| slice[node_index] }.compact
+partial_list = target_tests.sort.each_slice(node_number).map { |slice| slice[node_index] }.compact
 
 puts partial_list.join(options[:delimiter])
