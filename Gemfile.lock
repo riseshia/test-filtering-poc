@@ -68,6 +68,8 @@ GEM
       tzinfo (~> 2.0)
     addressable (2.8.0)
       public_suffix (>= 2.0.2, < 5.0)
+    affected_tests (0.1.0)
+      calleree
     bindex (0.8.1)
     bootsnap (1.12.0)
       msgpack (~> 1.2)
@@ -246,8 +248,8 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  affected_tests
   bootsnap
-  calleree
   capybara
   debug
   importmap-rails

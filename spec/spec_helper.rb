@@ -16,10 +16,14 @@
 #
 # See https://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 
-require "set"
-require "json"
+require "affected_tests"
+require "affected_tests/rspec"
 
-require_relative "./files_associated_test_map"
+AffectedTests.setup(
+  project_path: File.expand_path("../../", __FILE__),
+  test_dir_path: "spec/",
+  output_path: "log/affected-tests-map.json"
+)
 
 RSpec.configure do |config|
   # rspec-expectations config goes here. You can use an alternate
@@ -94,20 +98,4 @@ RSpec.configure do |config|
   # test failures related to randomization by passing the same `--seed` value
   # as the one that triggered the failure.
   Kernel.srand config.seed
-
-  config.before(:suite) do
-    FilesAssociatedTestMap.setup(
-      test_path: "spec/",
-      output_path: "log/file-to-associated-tests-map.json"
-    )
-  end
-
-  config.after(:each) do
-    target_spec = self.class.declaration_locations.last[0]
-    FilesAssociatedTestMap.emit(target_spec)
-  end
-
-  config.after(:suite) do
-    FilesAssociatedTestMap.dump
-  end
 end
