@@ -23,7 +23,7 @@ jobs:
       name: Fetch File associated Tests map
       uses: actions/cache@v3
       with:
-        path: file-to-associated-tests-map.json
+        path: affected-tests-map.json
         key: map-v3-${{ github.sha }}
         restore-keys: |
           map-v3-
@@ -36,13 +36,13 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         REPOSITORY: ${{ github.repository }}
       run: |
-        FILE=file-to-associated-tests-map.json
+        FILE=affected-tests-map.json
 
         if [ -f "$FILE" ]; then
-          base_sha=$(cat file-to-associated-tests-map.json | jq -r .revision)
+          base_sha=$(cat affected-tests-map.json | jq -r .revision)
           pr_sha=${{ github.sha }}
           bundle exec bin/generate-diff-files "${REPOSITORY}" "${base_sha}" "${pr_sha}" > diff_files.json
-          bin/calculate-target-test --diff-file=diff_files.json --map-file=file-to-associated-tests-map.json > test_targets
+          bin/calculate-target-test --diff-file=diff_files.json --map-file=affected-tests-map.json > test_targets
           echo '## Executed spec files :rocket:' >> $GITHUB_STEP_SUMMARY
           for file in $(cat test_targets); do
             echo "- ${file}" >> $GITHUB_STEP_SUMMARY

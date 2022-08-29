@@ -20,7 +20,7 @@ jobs:
     - name: Cache File associated Tests map
       uses: actions/cache@v3
       with:
-        path: file-to-associated-tests-map.json
+        path: log/affected-tests-map.json
         key: map-v3-${{ github.sha }}
     - name: Set up Rails
       run: |
@@ -30,4 +30,4 @@ jobs:
     - run: bundle exec rspec
     - name: Save file-to-associated-test-map
       run: |
-        mv {log/,}file-to-associated-tests-map.json
+        mv {log/,}affected-tests-map.json
