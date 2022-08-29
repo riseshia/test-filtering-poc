@@ -1,0 +1,19 @@
+#!/usr/bin/env ruby
+
+require "affected_tests/map_merger"
+
+if ARGV.size != 1
+  puts "Pass partial map size"
+  exit 1
+end
+
+num = ARGV.shift.to_i
+
+files = (0...num).map do |i|
+  "affected-tests-map-#{i}/affected-tests-map.json"
+end
+
+AffectedTests::MapMerger.run(
+  map_file_paths: files,
+  output_path: "affected-tests-map.json"
+)

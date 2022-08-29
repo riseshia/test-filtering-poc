@@ -1,0 +1,18 @@
+#!/usr/bin/env ruby
+
+if ARGV.size != 2
+  puts  "Usage: take-test-groups <the num of node> <target idx>"
+  exit 1
+end
+
+total = ARGV.shift.to_i
+target_idx = ARGV.shift.to_i
+
+result = []
+Dir["spec/**/*_spec.rb"].each_with_index do |file, idx|
+  if idx % total == target_idx
+    result << file
+  end
+end
+
+puts result.join(" ")
